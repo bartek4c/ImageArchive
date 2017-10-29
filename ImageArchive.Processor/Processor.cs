@@ -83,6 +83,7 @@ namespace ImageArchive.Processor
                     //Delete empty directories					
                     DeleteDirectory(sourceDirectory);
 
+                    //updates processing started log with processing finish details - one log item per run
 					_loggingService.ProcessingFinished(_total, logId);
                     _total = 0;
 				}
