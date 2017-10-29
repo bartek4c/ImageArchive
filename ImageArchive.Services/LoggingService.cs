@@ -4,6 +4,7 @@ using ImageArchive.DataAccess.Model.Enums;
 using ImageArchive.Model.Enums;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,6 +35,19 @@ namespace ImageArchive.Services
             }
         }
 
+        public void DeletedRecords(List<int> ids)
+        {
+            using (var db = new ImageArchiveContext())
+            {
+                foreach (var id in ids)
+                {
+                    var file = db.ArchivedImages.FirstOrDefault(x => x.Id == id);
+                    db.ArchivedImages.Remove(file);
+                    db.SaveChanges();
+                }
+            }
+        }
+
         private ArchivedImage MapObject(ArchivedImage item, string extension, string originalName, string newName, int? year = null, int? month = null)
         {
             item.Timestamp = DateTime.Now;
@@ -45,6 +59,29 @@ namespace ImageArchive.Services
             return item;
         }
 
+        public Dictionary<int, string> GetCopies()
+        {
+            Dictionary<int, string> copies = new Dictionary<int,string>();
+            using (var db = new ImageArchiveContext())
+            {
+                var rejectList = db.ArchivedImages.Where(x => x.ImageId.Contains("_0."));
+                foreach (var copy in db.ArchivedImages.Except(rejectList))
+                {
+                    string path;
+                    if (copy.Extension == ".jpg" || copy.Extension == ".png")
+                    {
+                        path = string.Format("\\{0}\\{1}\\{2}", copy.Year, CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(Convert.ToInt16(copy.Month)), copy.ImageId);
+                    }
+                    else 
+                    {
+                        path = string.Format("\\{0}", copy.ImageId);
+                    }
+                    copies.Add(copy.Id, path);
+                }
+            }
+            return copies;
+        }
+        
         public void FileCouldNotBeProcessed(string originalName)
         {
             using (var db = new ImageArchiveContext())
@@ -109,5 +146,7 @@ namespace ImageArchive.Services
                 db.SaveChanges();
             }
         }
+
+
     }
 }

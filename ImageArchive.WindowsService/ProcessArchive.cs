@@ -45,10 +45,13 @@ namespace ImageArchive.WindowsService
 
         private void Run()
         {
-            //entry point to the processr from windows service - every 10 mins
-            while (!m_StopSignal.WaitOne(60000))
+            //entry point to the processr from windows service - every 5 minutes
+            //while (!m_StopSignal.WaitOne(300000))
+            while (!m_StopSignal.WaitOne(6000))
             {
+                Console.WriteLine("Start Processing: " + DateTime.Now.ToLongTimeString());
                 _processor.RunProcessor();
+                Console.WriteLine("Finished: " + DateTime.Now.ToLongTimeString());
             }
         }
     }

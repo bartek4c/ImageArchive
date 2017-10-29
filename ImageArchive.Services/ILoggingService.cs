@@ -11,6 +11,8 @@ namespace ImageArchive.Services
     public interface ILoggingService
     {
         void FileProcessed(string extension, string originalName, string newName, int? year, int? month);
+        void DeletedRecords(List<int> ids);
+        Dictionary<int, string> GetCopies();
         void FileCouldNotBeProcessed(string originalName);
         int ProcessingStarted();
         void ProcessingFinished(int totalProcessed, int logId);

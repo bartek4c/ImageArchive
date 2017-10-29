@@ -78,6 +78,8 @@ namespace ImageArchive.Processor
 
 					//Process files in directory
 					ProcessDirectory(sourceDirectory);
+                    //Remove duplicates from db which have been removed locally
+                    CheckForDeletedFiles();
                     //Delete empty directories					
                     DeleteDirectory(sourceDirectory);
 
@@ -119,6 +121,41 @@ namespace ImageArchive.Processor
 			foreach (string subdirectory in subdirectoryEntries)
 				ProcessDirectory(subdirectory);
 		}
+
+        // Compare duplicates from db and delete each record that had it local copy deleted
+        private void CheckForDeletedFiles() 
+        {
+            var recordsToDelete = new List<int>();
+
+            var copies = _loggingService.GetCopies();
+            
+            foreach (KeyValuePair<int, string> item in copies)
+            {
+                string directory;
+                switch (item.Value.Split('.')[1])
+                {
+                    case "jpg":
+                    case "png":
+                        directory = imageDestinationDirectory;
+                        break;
+                    case "psd":
+                        directory = psdDestinationDirectory;
+                        break;
+                    default:
+                        directory = videoDestinationDirectory;
+                        break;
+                }
+                using (new NetworkConnection(directory, _credentials))
+                {
+                    if (!File.Exists(directory + item.Value))
+                    {
+                        recordsToDelete.Add(item.Key);
+                    }
+                }
+            }
+
+            _loggingService.DeletedRecords(recordsToDelete);
+        }
 
         // Recursive method
         // Deletes all empty directories that are found at whichever level
