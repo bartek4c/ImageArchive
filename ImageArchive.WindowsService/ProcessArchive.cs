@@ -46,7 +46,7 @@ namespace ImageArchive.WindowsService
         private void Run()
         {
             //entry point to the processr from windows service - every 10 mins
-            while (!m_StopSignal.WaitOne(600000))
+            while (!m_StopSignal.WaitOne(60000))
             {
                 _processor.RunProcessor();
             }

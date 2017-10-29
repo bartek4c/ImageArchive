@@ -93,7 +93,7 @@ namespace ImageArchive.Services
             using (var db = new ImageArchiveContext())
             {
                 string em = (e != null) ? e.Message : null;
-                if (em != null && e.InnerException.Message != null)
+                if (em != null && e.InnerException != null && e.InnerException.Message != null)
                 {
                     em += " - INNER EXCEPTION -> " + e.InnerException.Message;
                 }

@@ -78,9 +78,11 @@ namespace ImageArchive.Processor
 
 					//Process files in directory
 					ProcessDirectory(sourceDirectory);
+                    //Delete empty directories					
+                    DeleteDirectory(sourceDirectory);
 
-					
 					_loggingService.ProcessingFinished(_total, logId);
+                    _total = 0;
 				}
 				else
 				{
@@ -99,7 +101,7 @@ namespace ImageArchive.Processor
 		// Recursive method
 		// Process all files in the directory passed in, recurse on any directories 
 		// that are found, and process the files they contain.
-		public void ProcessDirectory(string directory)
+		private void ProcessDirectory(string directory)
 		{
 			using (new NetworkConnection(directory, _credentials))
 			{
@@ -116,9 +118,24 @@ namespace ImageArchive.Processor
 			var subdirectoryEntries = Directory.GetDirectories(directory);
 			foreach (string subdirectory in subdirectoryEntries)
 				ProcessDirectory(subdirectory);
-
-			//TODO: remove all empty directories
 		}
+
+        // Recursive method
+        // Deletes all empty directories that are found at whichever level
+        private void DeleteDirectory(string directory)
+        {
+            using (new NetworkConnection(directory, _credentials))
+            {
+                foreach (var d in Directory.GetDirectories(directory))
+                {
+                    DeleteDirectory(d);
+                    if (Directory.GetFiles(d).Length == 0 && Directory.GetDirectories(d).Length == 0)
+                    {
+                        Directory.Delete(d, false);
+                    }
+                }
+            }
+        }
 
 		/// <summary>
 		/// Determine the type of file and destination directory
@@ -188,7 +205,8 @@ namespace ImageArchive.Processor
 				//copy new file it the archive directory
 				File.Copy(info.FullName, fileFull);
 				//move the original file to the processed folder. Change the name if it exists
-				if (File.Exists(Path.Combine(processedDirectory, info.Name)))
+                var newLocation = Path.Combine(processedDirectory, info.Name);
+				if (File.Exists(newLocation))
 				{
 					//do not change the name of psd files since the hidden file will be lost. Delete file in that case and then move
 					if (info.Extension != ".psd")
@@ -197,13 +215,13 @@ namespace ImageArchive.Processor
 					}
 					else
 					{
-						File.Delete(info.FullName);
-						File.Move(info.FullName, Path.Combine(processedDirectory, info.Name));
+						File.Delete(newLocation);
+						File.Move(info.FullName, newLocation);
 					}
 				}
 				else
 				{
-					File.Move(info.FullName, Path.Combine(processedDirectory, info.Name));
+					File.Move(info.FullName, newLocation);
 				}
 				
 				_loggingService.FileProcessed(
@@ -216,9 +234,15 @@ namespace ImageArchive.Processor
 			else
 			{
 				FileInfo info = new FileInfo(path);
-				File.Move(info.FullName, Path.Combine(destinationFolder, info.Name));
+                var newLocation = Path.Combine(destinationFolder, info.Name);
 
-				_loggingService.FileCouldNotBeProcessed(info.FullName);
+                if (File.Exists(newLocation))
+                {
+                    File.Delete(newLocation);
+                }
+				File.Move(info.FullName, newLocation);
+
+                _loggingService.FileCouldNotBeProcessed(newLocation);
 			}
 		}
 

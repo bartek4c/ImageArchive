@@ -50,7 +50,7 @@
   <ItemGroup>
     <Compile Include="ImageArchiveContext.cs" />
     <Compile Include="Model\Enums\LogType.cs" />
-    <Compile Include="Model\ImageArchiveLog.cs" />
+    <Compile Include="Model\ArchivedImage.cs" />
     <Compile Include="Model\Log.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
