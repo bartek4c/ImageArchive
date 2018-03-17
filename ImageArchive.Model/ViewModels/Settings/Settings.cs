@@ -8,6 +8,7 @@ namespace ImageArchive.Model.ViewModels.Settings
 {
     public class Settings
     {
+		
         //NAS
         public string SourceDirectory { get; set; }
         public string ImageDestinationDirectory { get; set; }
