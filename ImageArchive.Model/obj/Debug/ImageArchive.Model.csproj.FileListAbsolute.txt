@@ -1,5 +1,0 @@
-C:\git\ImageArchive\ImageArchive.Model\bin\Debug\ImageArchive.Model.dll
-C:\git\ImageArchive\ImageArchive.Model\bin\Debug\ImageArchive.Model.pdb
-C:\git\ImageArchive\ImageArchive.Model\obj\Debug\ImageArchive.Model.dll
-C:\git\ImageArchive\ImageArchive.Model\obj\Debug\ImageArchive.Model.pdb
-C:\git\ImageArchive\ImageArchive.Model\obj\Debug\ImageArchive.Model.csprojResolveAssemblyReference.cache
